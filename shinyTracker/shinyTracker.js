@@ -18,26 +18,25 @@ function binomialCDF(probability, trials) {
     // F(k;n,p) = Pr(X<=k) = E(|k|, i=0) Choose(n,i) p^i (1-p)^(n-i)
     // Pr(X<=k) = 1 - Pr(X>k) -> Pr(X>0) = 1 - Pr(X<=0)
     // c(n, 0) = 1
-    var res = 1 - ((Math.pow(probability, 0)) * Math.pow((1 - probability), trials));
+    let res = 1 - ((Math.pow(probability, 0)) * Math.pow((1 - probability), trials));
     return res;
 }
 //rewrite using an interace and remove the SUPER from the other classes
-var ShinyMethodBase = /** @class */ (function () {
-    function ShinyMethodBase(methodName, generation, odds, probability) {
+class ShinyMethodBase {
+    constructor(methodName, generation, odds, probability) {
         this.name = methodName;
         this.validGenerations = generation;
         this.odds = odds;
         this.probability = probability;
     }
-    return ShinyMethodBase;
-}());
-var Masuda = /** @class */ (function () {
-    function Masuda(generation, hasCharm) {
+}
+class Masuda {
+    constructor(generation, hasCharm) {
         this.name = "Masuda Method";
         this.description = "International marriage method. ";
         this.validGeneration = [4, 5, 6, 7, 8];
-        var odds;
-        var oddsStr;
+        let odds;
+        let oddsStr;
         if (generation === 4) {
             odds = 1 / 1683;
             oddsStr = '1/1683';
@@ -61,39 +60,37 @@ var Masuda = /** @class */ (function () {
         this.odds = odds;
         this.oddsStr = oddsStr;
     }
-    Masuda.prototype.getCurrentOdds = function () {
+    getCurrentOdds() {
         // no updated current odds since Masuda Method does not change probability
         // returns human readable probability 
         return this.odds;
-    };
-    Masuda.prototype.getCurrentOddsStr = function () {
+    }
+    getCurrentOddsStr() {
         // no updated current odds since Masuda Method does not change probability
         // returns human readable probability 
         return this.oddsStr;
-    };
-    Masuda.prototype.getProbability = function (count) {
+    }
+    getProbability(count) {
         // shows the probability of getting at least Count number
         // cumulative probability of binomial
-        var res = binomialCDF(this.odds, count);
+        let res = binomialCDF(this.odds, count);
         return res;
-    };
-    Masuda.prototype.logStats = function (count) {
+    }
+    logStats(count) {
         // Helper function for testing purposes
         console.log('-----------------------');
         console.log('Current Count: ' + count);
         console.log('Current Odds: ' + this.getCurrentOddsStr());
         console.log('Current Probability: ' + (this.getProbability(count) * 100).toFixed(2) + '%');
-    };
-    return Masuda;
-}());
-var SOSChaining = /** @class */ (function () {
-    function SOSChaining(hasCharm, chain) {
-        if (chain === void 0) { chain = 0; }
+    }
+}
+class SOSChaining {
+    constructor(hasCharm, chain = 0) {
         this.name = "SOS Chanining";
         this.description = "SOS Call chaining from Sun and Moon. ";
         this.validGeneration = [7];
-        var odds;
-        var oddsStr;
+        let odds;
+        let oddsStr;
         if (chain % 256 <= 69) {
             odds = (hasCharm ? 1 / 1365 : 1 / 4096);
             oddsStr = (hasCharm ? '1/1365' : '1/4096');
@@ -110,9 +107,9 @@ var SOSChaining = /** @class */ (function () {
         this.oddsStr = oddsStr;
         this.hasCharm = hasCharm;
     }
-    SOSChaining.prototype.updateOdds = function (chain) {
-        var odds;
-        var oddsStr;
+    updateOdds(chain) {
+        let odds;
+        let oddsStr;
         if (chain % 256 <= 69) {
             odds = (this.hasCharm ? 1 / 1365 : 1 / 4096);
             oddsStr = (this.hasCharm ? '1/1365' : '1/4096');
@@ -128,22 +125,22 @@ var SOSChaining = /** @class */ (function () {
         this.odds = odds;
         this.oddsStr = oddsStr;
         return;
-    };
-    SOSChaining.prototype.getCurrentOdds = function (chain) {
+    }
+    getCurrentOdds(chain) {
         // no updated current odds since Masuda Method does not change probability
         // returns human readable probability
         this.updateOdds(chain);
         return this.oddsStr;
-    };
-    SOSChaining.prototype.getProbability = function (count) {
+    }
+    getProbability(count) {
         // shows the probability of getting at least Count number
         // cumulative probability of binomial
-        var res = 0;
-        var rollover = Math.floor(count / 256);
+        let res = 0;
+        let rollover = Math.floor(count / 256);
         this.updateOdds(1);
-        var lowOdds = this.odds;
+        let lowOdds = this.odds;
         this.updateOdds(70);
-        var highOdds = this.odds;
+        let highOdds = this.odds;
         this.updateOdds(count);
         res = rollover * (binomialCDF(lowOdds, 69) + binomialCDF(highOdds, 256 - 69));
         if (count % 256 <= 69) {
@@ -154,27 +151,26 @@ var SOSChaining = /** @class */ (function () {
             res += binomialCDF(this.odds, (count % 256) - 69);
         }
         return res;
-    };
-    SOSChaining.prototype.logStats = function (count) {
+    }
+    logStats(count) {
         // Helper function for testing purposes
         console.log('-----------------------');
         console.log('Current Count: ' + count);
         console.log('Current Odds: ' + this.getCurrentOdds(count));
         console.log('Current Probability: ' + (this.getProbability(count) * 100).toFixed(2) + '%');
-    };
-    return SOSChaining;
-}());
-var date = new Date();
-var startTime = date.toLocaleTimeString();
-var startDate = date.toLocaleDateString();
+    }
+}
+let date = new Date();
+let startTime = date.toLocaleTimeString();
+let startDate = date.toLocaleDateString();
 console.log('Starting timestamp: ' + startDate + ' ' + startTime);
-var masuda = new Masuda(8, true);
+let masuda = new Masuda(8, true);
 console.log("-----------------------");
 console.log("---- MASUDA METHOD ----");
 masuda.logStats(100);
 masuda.logStats(1000);
 masuda.logStats(10000);
-var sos = new SOSChaining(false);
+let sos = new SOSChaining(false);
 console.log("-----------------------");
 console.log("----- SOS CALLING -----");
 sos.logStats(1);
@@ -183,3 +179,4 @@ sos.logStats(69);
 sos.logStats(70);
 sos.logStats(255);
 sos.logStats(256);
+//# sourceMappingURL=shinyTracker.js.map
